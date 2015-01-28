@@ -100,7 +100,57 @@ class BaseNeighborhood:
         return ((x, y-1), (x-1, y-1), (x-1, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x+1, y), (x+1, y-1))
 
 class CrossNeighborhood(BaseNeighborhood):
-    pass
+    def _top_left_neighbors(self, x, y):
+        return ((x+1, y+1),)
+
+    def _top_right_neighbors(self, x, y):
+        return ((x-1, y+1),)
+
+    def _bottom_left_neighbors(self, x, y):
+        return ((x+1, y-1),)
+
+    def _bottom_right_neighbors(self, x, y):
+        return ((x-1, y-1),)
+
+    def _top_neighbors(self, x, y):
+        return ((x-1, y+1), (x+1, y+1))
+
+    def _bottom_neighbors(self, x, y):
+        return ((x-1, y-1), (x+1, y-1))
+
+    def _left_neighbors(self, x, y):
+        return ((x+1, y-1), (x+1, y+1))
+
+    def _right_neighbors(self, x, y):
+        return ((x-1, y-1), (x-1, y+1))
+
+    def _all_neighbors(self, x, y):
+        return ((x-1, y-1), (x-1, y+1), (x+1, y+1), (x+1, y-1))
 
 class PlusNeighborhood(BaseNeighborhood):
-    pass
+    def _top_left_neighbors(self, x, y):
+        return ((x, y+1), (x+1, y))
+
+    def _top_right_neighbors(self, x, y):
+        return ((x-1, y), (x, y+1))
+
+    def _bottom_left_neighbors(self, x, y):
+        return ((x, y-1), (x+1, y))
+
+    def _bottom_right_neighbors(self, x, y):
+        return ((x-1, y), (x, y-1))
+
+    def _top_neighbors(self, x, y):
+        return ((x, y+1),)
+
+    def _bottom_neighbors(self, x, y):
+        return ((x, y-1),)
+
+    def _left_neighbors(self, x, y):
+        return ((x+1, y),)
+
+    def _right_neighbors(self, x, y):
+        return ((x-1, y),)
+
+    def _all_neighbors(self, x, y):
+        return ((x, y-1), (x-1, y), (x, y+1), (x+1, y))

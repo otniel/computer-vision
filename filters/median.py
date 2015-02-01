@@ -3,25 +3,10 @@ __author__ = 'Otniel'
 import Image
 import sys
 
-from utils.neighborhoods import BaseNeighborhood, CrossNeighborhood, PlusNeighborhood
+from utils.neighborhoods import BasePixelNeighborhood, CrossPixelNeighborhood, PlusPixelNeighborhood
+from filter import BaseFilter
 
-class MedianFilter:
-    def __init__(self, image_name, type='0'):
-        self.image = Image.open(image_name)
-        self.image_width = self.image.size[0]
-        self.image_height = self.image.size[1]
-        self.pixels = self.image.load()
-
-        if type == '1':
-            self.neighborhood = CrossNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "cross_neighborhood_out.jpg"
-        elif type == '2':
-            self.neighborhood = PlusNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "plus_neighborhood_out.jpg"
-        else:
-            self.neighborhood = BaseNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "base_neighborhood_out.jpg"
-
+class MedianFilter(BaseFilter):
     def apply_filter(self):
         for x in xrange(self.image_width):
             for y in xrange(self.image_height):
@@ -50,9 +35,9 @@ class MedianFilter:
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "Usage -> ./median_filter.py FILENAME"
+        print "Usage -> ./median.py FILENAME"
         print "Optional argument TYPE: 0 = normal neighborhood, 1 = cross neighborhood, 2 = plus neighborhood (default 0)"
-        print "Example: ./median_filter.py mason.jpg 1"
+        print "Example: ./median.py mason.jpg 1"
         print
         exit()
 

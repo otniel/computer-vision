@@ -1,0 +1,28 @@
+Escala de grises
+
+Range scaling, per chanel, pts extras, [slider, change to b&n]
+
+histogram,
+
+salt & pepper filter, do and undo
+
+sorted filters: min 1pt(quantil 0%), max 1pt(quantil 100%),
+                median pt(quantil de 50%), quantil (0 <= q <= 1), multiplle neighb, 1pt
+
+mask filters: average 1pr, gaussian 1pt, arbitrary 1pt
+
+transparency: color - alpha 1pt, threshold 1pt; alpha - color 1pt
+
+resize: arrange 1pt, arbritary 1pt, large to small 1pt,
+
+invert colors, per channel, switch chanels
+
+combine: any (avergare) 1pt, ponderado 1pt, difference 2 images 1pt. (combine with effect)
+
+float-fill exact 1pt, threshold 1pt, block 1pt,
+
+binary, half 1pt, threshold (1 or 2) 1pt, automátic threshold 1pt,
+
+random colors
+
+drawing: line(eq, 2 lines) 1pt, circle(eq, origin, radius), ellipse eq 1pt, rectangulo (eq), lineas a partir de puntos,

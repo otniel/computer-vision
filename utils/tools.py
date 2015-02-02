@@ -1,7 +1,6 @@
 __author__ = 'otniel'
 
 import Image
-from filters.median import MedianFilter
 from utils.neighborhoods import BasePixelNeighborhood
 
 MAX_PIXEL_INTENSITY = 255
@@ -10,15 +9,18 @@ FIXED_THRESHOLD = 127
 
 def invert_rgb_image(image):
     pixels = image.load()
+    inverted_image = Image.new("L", image.size)
+    inverted_pixels = inverted_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            pixels[x, y] = invert_pixel(pixels[x, y])
+            inverted_pixels[x, y] = invert_pixel(inverted_pixels[x, y])
+    return inverted_image
 
 def invert_rgb_pixel(pixel):
     r, g, b = pixel
     return ((MAX_PIXEL_INTENSITY - r), (MAX_PIXEL_INTENSITY - g), (MAX_PIXEL_INTENSITY - b))
 
-def rgb_to_grayscale(image):
+def grayscale_rgb_image(image):
     pixels = image.load()
     grayscale_image = Image.new("L", image.size)
     grayscale_pixels = grayscale_image.load()
@@ -34,12 +36,12 @@ def get_grayscale_pixel(rgb_pixel):
                                      [0.2126, 0.7152, 0.0722])]) # Intensity coefficients [http://u.to/qEtWCg]
 
 def binarize_rgb_image(image):
-    grayscale_image = rgb_to_grayscale(image)
-    pixels = grayscale_image.load()
+    binary_image = grayscale_rgb_image(image)
+    binary_pixels = binary_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            pixels[x, y] = _binarize_pixel
-    return grayscale_image
+            binary_pixels[x, y] = _binarize_pixel
+    return binary_image
 
 def _binarize_pixel(pixel):
     if pixel >= 127:
@@ -48,7 +50,6 @@ def _binarize_pixel(pixel):
 
 def erode_binary_image(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-
     eroded_image = Image.new("L", image.size)
     eroded_pixels = eroded_image.load()
     for y in xrange(image.size[1]): # height
@@ -64,7 +65,6 @@ def _erode_pixel(neighborhood, x, y):
 
 def dilate_binary_image(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-
     dilated_image = Image.new("L", image.size)
     dilated_pixels = dilated_image.load()
     for y in xrange(image.size[1]): # height
@@ -80,30 +80,29 @@ def _dilate_pixel(neighborhood, x, y):
 
 def detect_edges_in_binary_images(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-
     edged_image = Image.new("L", image.size)
     edged_pixels = edged_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            pixels_neigh = neighborhood.get_binary_pixel_neighborhood(x, y)
-            sigma = sum(pixels_neigh)
-            if sigma == 8:
-                edged_pixels[x, y] = MIN_PIXEL_INTENSITY
-            else:
-                edged_pixels[x, y] = MAX_PIXEL_INTENSITY
+            edged_pixels[x, y] = _edged_pixel(neighborhood, x, y)
     return edged_image
+
+def _edged_pixel(neighborhood, x, y):
+    binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
+    if sum(binary_neighbors) == 8:
+        return MIN_PIXEL_INTENSITY
+    return MAX_PIXEL_INTENSITY
 
 def remove_salt_noise(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-
     unsalted_image = Image.new("L", image.size)
     unsalted_pixels = unsalted_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            unsalted_pixels[x, y] = remove_salt_pixel(neighborhood, x, y)
+            unsalted_pixels[x, y] = _remove_salt_pixel(neighborhood, x, y)
     return unsalted_image
 
-def remove_salt_pixel(neighborhood, x, y):
+def _remove_salt_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
     if sum(binary_neighbors) == 8:
         return MAX_PIXEL_INTENSITY
@@ -115,10 +114,10 @@ def remove_pepper_noise(image):
     unpeppered_pixels = unpeppered_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            unpeppered_pixels[x, y] = remove_pepper_pixel(neighborhood, x, y)
+            unpeppered_pixels[x, y] = _remove_pepper_pixel(neighborhood, x, y)
     return unpeppered_image
 
-def remove_pepper_pixel(neighborhood, x, y):
+def _remove_pepper_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
     if sum(binary_neighbors) == 0:
         return MIN_PIXEL_INTENSITY

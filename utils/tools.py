@@ -40,11 +40,11 @@ def binarize_rgb_image(image):
     binary_pixels = binary_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            binary_pixels[x, y] = _binarize_pixel
+            binary_pixels[x, y] = _binarize_pixel(binary_pixels[x, y])
     return binary_image
 
 def _binarize_pixel(pixel):
-    if pixel >= 127:
+    if pixel >= FIXED_THRESHOLD:
         return MAX_PIXEL_INTENSITY
     return MIN_PIXEL_INTENSITY
 
@@ -59,9 +59,9 @@ def erode_binary_image(image):
 
 def _erode_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
-    if sum(binary_neighbors) < 8:
-        return MIN_PIXEL_INTENSITY
-    return MAX_PIXEL_INTENSITY
+    if sum(binary_neighbors) > 0:
+        return MAX_PIXEL_INTENSITY
+    return MIN_PIXEL_INTENSITY
 
 def dilate_binary_image(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
@@ -74,9 +74,9 @@ def dilate_binary_image(image):
 
 def _dilate_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
-    if sum(binary_neighbors) > 0:
-        return MAX_PIXEL_INTENSITY
-    return MIN_PIXEL_INTENSITY
+    if sum(binary_neighbors) < 8:
+        return MIN_PIXEL_INTENSITY
+    return MAX_PIXEL_INTENSITY
 
 def detect_edges_in_binary_images(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)

@@ -5,22 +5,22 @@ import sys
 import numpy as np
 
 from abc import ABCMeta, abstractmethod
-from utils.neighborhoods import BasePixelNeighborhood, CrossPixelNeighborhood, PlusPixelNeighborhood
+from utils.neighborhoods import BaseNeighborhood, CrossNeighborhood, PlusNeighborhood
 
 class BaseFilter:
     __metaclass__ = ABCMeta
-    def __init__(self, image, type=0):
+    def __init__(self, image, neighborhood=0):
         self.image = image
         self.image_width = image.size[0]
         self.image_height = image.size[1]
         self.pixels = image.load()
 
-        if type == '1':
-            self.neighborhood = CrossPixelNeighborhood(self.pixels, self.image.size)
-        elif type == '2':
-            self.neighborhood = PlusPixelNeighborhood(self.pixels, self.image.size)
+        if neighborhood == '1':
+            self.neighborhood = CrossNeighborhood(self.image.size)
+        elif neighborhood == '2':
+            self.neighborhood = PlusNeighborhood(self.image.size)
         else:
-            self.neighborhood = BasePixelNeighborhood(self.pixels, self.image.size)
+            self.neighborhood = BaseNeighborhood(self.image.size)
 
     def apply_filter(self):
         filtered_image = Image.new(self.image.mode, self.image.size)

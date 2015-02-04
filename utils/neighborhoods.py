@@ -1,10 +1,9 @@
 __author__ = 'otniel'
 
-class BasePixelNeighborhood:
-    def __init__(self, pixels, image_size):
-        self.pixels = pixels
-        self.width = image_size[0]
-        self.height = image_size[1]
+class BaseNeighborhood:
+    def __init__(self, neighborhood_size):
+        self.width = neighborhood_size[0]
+        self.height = neighborhood_size[1]
 
     def get_neighbor_coordinates(self, x, y):
         if self._is_corner(x, y):
@@ -14,11 +13,6 @@ class BasePixelNeighborhood:
             return self.border_neighbors(x, y)
 
         return self._all_neighbors(x, y)
-
-    def get_binary_pixel_neighborhood(self, x, y):
-        neighbors = [self.pixels[coordinate] for coordinate in (self.get_neighbor_coordinates(x, y))]
-        binary_neighbors = [1 if neighbor == 255 else 0 for neighbor in neighbors]
-        return binary_neighbors
 
     def _is_corner(self, x, y):
         return self._is_top_left(x, y) or self._is_top_right(x, y) \
@@ -105,7 +99,7 @@ class BasePixelNeighborhood:
     def _all_neighbors(self, x, y):
         return ((x, y-1), (x-1, y-1), (x-1, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x+1, y), (x+1, y-1))
 
-class CrossPixelNeighborhood(BasePixelNeighborhood):
+class CrossNeighborhood(BaseNeighborhood):
     def _top_left_neighbors(self, x, y):
         return ((x+1, y+1),)
 
@@ -133,7 +127,7 @@ class CrossPixelNeighborhood(BasePixelNeighborhood):
     def _all_neighbors(self, x, y):
         return ((x-1, y-1), (x-1, y+1), (x+1, y+1), (x+1, y-1))
 
-class PlusPixelNeighborhood(BasePixelNeighborhood):
+class PlusNeighborhood(BaseNeighborhood):
     def _top_left_neighbors(self, x, y):
         return ((x, y+1), (x+1, y))
 

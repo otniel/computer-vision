@@ -9,14 +9,14 @@ FIXED_THRESHOLD = 127
 
 def invert_rgb_image(image):
     pixels = image.load()
-    inverted_image = Image.new("L", image.size)
+    inverted_image = Image.new(image.mode, image.size)
     inverted_pixels = inverted_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            inverted_pixels[x, y] = invert_pixel(inverted_pixels[x, y])
+            inverted_pixels[x, y] = _invert_rgb_pixel(inverted_pixels[x, y])
     return inverted_image
 
-def invert_rgb_pixel(pixel):
+def _invert_rgb_pixel(pixel):
     r, g, b = pixel
     return ((MAX_PIXEL_INTENSITY - r), (MAX_PIXEL_INTENSITY - g), (MAX_PIXEL_INTENSITY - b))
 
@@ -26,10 +26,10 @@ def grayscale_rgb_image(image):
     grayscale_pixels = grayscale_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
-            grayscale_pixels[x, y] = get_grayscale_pixel(pixels[x, y])
+            grayscale_pixels[x, y] = _get_grayscale_pixel(pixels[x, y])
     return grayscale_image
 
-def get_grayscale_pixel(rgb_pixel):
+def _get_grayscale_pixel(rgb_pixel):
     red, green, blue = rgb_pixel
     # Weighted sum
     return sum([x*y for (x,y) in zip([red, green, blue],
@@ -50,7 +50,7 @@ def _binarize_pixel(pixel):
 
 def erode_binary_image(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-    eroded_image = Image.new("L", image.size)
+    eroded_image = Image.new(image.mode, image.size)
     eroded_pixels = eroded_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
@@ -65,7 +65,7 @@ def _erode_pixel(neighborhood, x, y):
 
 def dilate_binary_image(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-    dilated_image = Image.new("L", image.size)
+    dilated_image = Image.new(image.mode, image.size)
     dilated_pixels = dilated_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
@@ -80,7 +80,7 @@ def _dilate_pixel(neighborhood, x, y):
 
 def detect_edges_in_binary_images(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-    edged_image = Image.new("L", image.size)
+    edged_image = Image.new(image.mode, image.size)
     edged_pixels = edged_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
@@ -95,7 +95,7 @@ def _edged_pixel(neighborhood, x, y):
 
 def remove_salt_noise(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-    unsalted_image = Image.new("L", image.size)
+    unsalted_image = Image.new(image.mode, image.size)
     unsalted_pixels = unsalted_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
@@ -104,13 +104,13 @@ def remove_salt_noise(image):
 
 def _remove_salt_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
-    if sum(binary_neighbors) == 8:
+    if sum(binary_neighbors) > 6:
         return MAX_PIXEL_INTENSITY
     return MIN_PIXEL_INTENSITY
 
 def remove_pepper_noise(image):
     neighborhood = BasePixelNeighborhood(image.load(), image.size)
-    unpeppered_image = Image.new("L", image.size)
+    unpeppered_image = Image.new(image.mode, image.size)
     unpeppered_pixels = unpeppered_image.load()
     for y in xrange(image.size[1]): # height
         for x in xrange(image.size[0]): # width
@@ -119,6 +119,20 @@ def remove_pepper_noise(image):
 
 def _remove_pepper_pixel(neighborhood, x, y):
     binary_neighbors = neighborhood.get_binary_pixel_neighborhood(x, y)
-    if sum(binary_neighbors) == 0:
+    if sum(binary_neighbors) < 2:
         return MIN_PIXEL_INTENSITY
     return MAX_PIXEL_INTENSITY
+
+def remove_salt_and_pepper_noise(image):
+    neighborhood = BasePixelNeighborhood(image.load(), image.size)
+    clean_image = Image.new(image.mode, image.size)
+    clean_pixels = clean_image.load()
+    for y in xrange(image.size[1]): # height
+        for x in xrange(image.size[0]): # width
+            clean_pixels[x, y] = _remove_salt_and_pepper(neighborhood, x, y)
+    return clean_image
+
+def _remove_salt_and_pepper(neighborhood, x, y):
+    clean_pixel = _remove_salt_pixel(neighborhood, x, y)
+    clean_pixel = _remove_pepper_pixel(neighborhood, x, y)
+    return clean_pixel

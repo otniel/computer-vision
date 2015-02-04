@@ -2,43 +2,57 @@ __author__ = 'Otniel'
 
 import Image
 import sys
+import numpy as np
 
 from abc import ABCMeta, abstractmethod
 from utils.neighborhoods import BasePixelNeighborhood, CrossPixelNeighborhood, PlusPixelNeighborhood
 
 class BaseFilter:
-    def __init__(self, image_name, type='0'):
-        self.image = Image.open(image_name)
-        self.image_width = self.image.size[0]
-        self.image_height = self.image.size[1]
-        self.pixels = self.image.load()
+    __metaclass__ = ABCMeta
+    def __init__(self, image, type):
+        self.image = image
+        self.image_width = image.size[0]
+        self.image_height = image.size[1]
+        self.pixels = image.load()
 
         if type == '1':
-            self.neighborhood = CrossPixelNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "cross_neighborhood_out.jpg"
+            self.neighborhood = CrossPixelNeighborhood(self.pixels, self.image.size)
         elif type == '2':
-            self.neighborhood = PlusPixelNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "plus_neighborhood_out.jpg"
+            self.neighborhood = PlusPixelNeighborhood(self.pixels, self.image.size)
         else:
-            self.neighborhood = BasePixelNeighborhood(self.image_width, self.image_height)
-            self.image_output_name = "_out.jpg"
+            self.neighborhood = BasePixelNeighborhood(self.pixels, self.image.size)
+
+    def apply_filter(self):
+        filtered_image = Image.new(self.image.mode, self.image.size)
+        filtered_pixels = filtered_image.load()
+        for x in xrange(self.image_width):
+            for y in xrange(self.image_height):
+                filtered_pixels[x, y] = self.calculate_filtered_pixel(x, y)
+        return filtered_image
 
     @abstractmethod
-    def apply_filter(self):
+    def calculate_filtered_pixel(self, x, y):
         pass
 
-    def average_from_two_pixels(self, pixel_1, pixel_2):
-        return tuple([(x+y)/2 for(x,y) in zip(pixel_1, pixel_2)])
+class MinFilter(BaseFilter):
+    def calculate_filtered_pixel(self, x, y):
+        neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
+        pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
+        return np.min(pixels)
 
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print "Usage -> ./median.py FILENAME"
-        print "Optional argument TYPE: 0 = normal neighborhood, 1 = cross neighborhood, 2 = plus neighborhood (default 0)"
-        print "Example: ./median.py mason.jpg 1"
-        print
-        exit()
+class MaxFilter(BaseFilter):
+    def calculate_filtered_pixel(self, x, y):
+        neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
+        pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
+        return np.max(pixels)
 
-    image_name = sys.argv[1]
+class MedianFilter(BaseFilter):
+    def calculate_filtered_pixel(self, x, y):
+        neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
+        pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
+        return np.median(pixels)
 
-    mf = MedianFilter(image_name)
-    mf.apply_filter()
+image = Image.open('/home/otniel/Documents/repos/computer-vision/filters/grayscale_mason.png')
+filter = MaxFilter(image, 0)
+image = filter.apply_filter()
+image.save('max_mason.png')

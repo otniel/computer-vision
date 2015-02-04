@@ -9,7 +9,7 @@ from utils.neighborhoods import BasePixelNeighborhood, CrossPixelNeighborhood, P
 
 class BaseFilter:
     __metaclass__ = ABCMeta
-    def __init__(self, image, type):
+    def __init__(self, image, type=0):
         self.image = image
         self.image_width = image.size[0]
         self.image_height = image.size[1]
@@ -52,7 +52,7 @@ class MedianFilter(BaseFilter):
         pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
         return np.median(pixels)
 
-image = Image.open('/home/otniel/Documents/repos/computer-vision/filters/grayscale_mason.png')
-filter = MaxFilter(image, 0)
+image = Image.open('grayscale_mason.png')
+filter = MaxFilter(image)
 image = filter.apply_filter()
 image.save('max_mason.png')

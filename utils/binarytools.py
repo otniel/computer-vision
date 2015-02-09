@@ -104,23 +104,28 @@ class BinaryImageTools:
         return clean_pixel
 
 if __name__ == '__main__':
-    from tools import binarize_rgb_image
+    from utils.tools import binarize_rgb_image
 
-    rgb_image = Image.open('mason.jpg')
+    rgb_image = Image.open('../mason.jpg')
     binary_image = binarize_rgb_image(rgb_image)
     bt = BinaryImageTools(binary_image)
 
+    print "Eroding image..."
     eroded_image = bt.erode_image()
     eroded_image.save('images/eroded_mason.png')
 
+    print "Dilating image..."
     dilated_image = bt.dilate_image()
     dilated_image.save('images/dilated_mason.png')
 
+    print "Removing salt..."
     unsalted_image = bt.remove_salt_noise()
     unsalted_image.save('images/unsalted_mason.png')
 
+    print "Removing pepper..."
     unpeppered_image = bt.remove_pepper_noise()
     unpeppered_image.save('images/unpeppered_mason.png')
 
+    print "Cleaning image..."
     cleaned_image = bt.remove_salt_and_pepper_noise()
     cleaned_image.save('images/clean_mason.png')

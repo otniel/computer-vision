@@ -47,6 +47,32 @@ def binarize_image(image):
             binary_pixels[x, y] = _binarize_pixel(binary_pixels[x, y])
     return binary_image
 
+def calculate_threshold(histogram):
+    threshold = histogram.mean()
+    previous_mean_one, previous_mean_two = 0, 0
+    group_one, group_two = _get_lower_group(histogram, threshold), _get_upper_group(histogram, threshold)
+    mean_one, mean_two = group_one.mean(), group_two.mean()
+    threshold = 0.5 * (mean_one + mean_two)
+    while previous_mean_one != mean_one or previous_mean_two != mean_two:
+        previous_mean_one, previous_mean_two = mean_one, mean_two
+        group_one, group_two = _get_lower_group(histogram, threshold), _get_upper_group(histogram, threshold)
+        mean_one, mean_two = int(group_one.mean()), int(group_two.mean())
+        threshold = 0.5 * (mean_one + mean_two)
+    return threshold
+
+def _get_lower_group(histogram, threshold):
+    return np.array([value for value in histogram if value < threshold])
+
+def _get_upper_group(histogram, threshold):
+    return np.array([value for value in histogram if value > threshold])
+
+def plot_histogram(histogram):
+    hist, bins = np.histogram(magnitudes)
+    center = (bins[:-1] + bins[1:]) / 2
+    width = 0.7 * (bins[1] - bins[0])
+    plt.bar(center, hist, align='center', width=width)
+    plt.show()
+
 def _binarize_pixel(pixel):
     if pixel >= FIXED_THRESHOLD:
         return MAX_PIXEL_INTENSITY
@@ -54,15 +80,18 @@ def _binarize_pixel(pixel):
 
 if __name__ == '__main__':
 
-    rgb_image = Image.open('mason.jpg')
+    rgb_image = Image.open('../mason.jpg')
 
+    print "Inverting image..."
     inverted_image = invert_rgb_image(rgb_image)
-    inverted_image.save('inverted_mason.png')
+    inverted_image.save('images/inverted_mason.png')
 
+    print "Grayscaling image..."
     gray_image = grayscale_rgb_image(rgb_image)
-    gray_image.save('grayscale_mason.png')
+    gray_image.save('images/grayscale_mason.png')
 
+    print "Binarizing image..."
     binary_image = binarize_rgb_image(rgb_image)
-    binary_image.save('binary_mason.png')
+    binary_image.save('images/binary_mason.png')
 
 

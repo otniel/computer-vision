@@ -23,6 +23,7 @@ class BaseFilter:
             self.neighborhood = BaseNeighborhood(self.image.size)
 
     def apply_filter(self):
+        print "Applying filter..."
         filtered_image = Image.new(self.image.mode, self.image.size)
         filtered_pixels = filtered_image.load()
         for x in xrange(self.image_width):
@@ -52,7 +53,7 @@ class MedianFilter(BaseFilter):
         pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
         return np.median(pixels)
 
-image = Image.open('grayscale_mason.png')
-filter = MaxFilter(image)
-image = filter.apply_filter()
-image.save('max_mason.png')
+#image = Image.open('grayscale_mason.png')
+#filter = MaxFilter(image)
+#image = filter.apply_filter()
+#image.save('max_mason.png')

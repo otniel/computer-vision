@@ -43,12 +43,11 @@ class Mask:
         self.gradient_list = []
         for y in xrange(self.image_height):
             for x in xrange(self.image_width):
-                row = []
                 if self.neighborhood._is_neither_corner_or_border(x, y): # Ignore borders and corners
-                    row.append([self.pixels[x, y], self.convolve_pixel(x, y)])
+                    self.gradient_list.append([self.pixels[x, y], self.convolve_pixel(x, y)])
                 else:
-                    row.append([0, 0])
-                self.gradient_list.append(row)
+                    self.gradient_list.append([0, 0])
+
     def convolve_pixel(self, x, y):
         neighbors = self.get_image_pixels(x, y)
         one_dimemsion_mask = self.mask.reshape(self.mask.size)

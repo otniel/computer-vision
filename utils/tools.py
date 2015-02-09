@@ -1,7 +1,10 @@
 __author__ = 'otniel'
 
 import Image
+import numpy as np
+
 from utils.pixelneighborhoods import BasePixelNeighborhood
+from math import sqrt
 
 MAX_PIXEL_INTENSITY = 255
 MIN_PIXEL_INTENSITY = 0
@@ -21,6 +24,7 @@ def _invert_rgb_pixel(pixel):
     return ((MAX_PIXEL_INTENSITY - r), (MAX_PIXEL_INTENSITY - g), (MAX_PIXEL_INTENSITY - b))
 
 def grayscale_rgb_image(image):
+    print "Grayscaling image..."
     pixels = image.load()
     grayscale_image = Image.new("L", image.size)
     grayscale_pixels = grayscale_image.load()
@@ -47,7 +51,8 @@ def binarize_image(image):
             binary_pixels[x, y] = _binarize_pixel(binary_pixels[x, y])
     return binary_image
 
-def calculate_threshold(histogram):
+def calculate_threshold(histogram): # Reference: http://goo.gl/7nP48T page 12
+    print "Calculating threshold..."
     threshold = histogram.mean()
     previous_mean_one, previous_mean_two = 0, 0
     group_one, group_two = _get_lower_group(histogram, threshold), _get_upper_group(histogram, threshold)
@@ -72,6 +77,18 @@ def plot_histogram(histogram):
     width = 0.7 * (bins[1] - bins[0])
     plt.bar(center, hist, align='center', width=width)
     plt.show()
+
+def calculate_global_gradient(horizontal_gradient, vertical_gradient):
+    """
+    :param horizontal_gradient:
+    :param vertical_gradient:
+    :return 2-dimensoinal list with pixels - gradient:
+    """
+
+    # Pixels from arbitrary gradient, they are the same
+    pixels = [pixel[0] for pixel in horizontal_gradient]
+    return [[pixel, sqrt(x[1] ** 2 + y[1] ** 2)] for (pixel, x, y) in
+            zip(pixels, horizontal_gradient, vertical_gradient)]
 
 def _binarize_pixel(pixel):
     if pixel >= FIXED_THRESHOLD:

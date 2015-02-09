@@ -3,50 +3,62 @@ import Image
 import numpy as np
 
 from masks.mask import Mask
-from utils.tools import grayscale_rgb_image, calculate_threshold
+from utils.tools import MAX_PIXEL_INTENSITY, MIN_PIXEL_INTENSITY
+from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
 from math import sqrt
 
-print "WARNING: Border detection may take several minutes depending on the image resolution"
-image = Image.open('../mason.jpg')
-print "Grayscaling image..."
-image = grayscale_rgb_image(image)
-filter = MedianFilter(image)
-image = filter.apply_filter()
+class BorderDetector:
+    def __init__(self, image):
+        self.image = self.preprocess_image(image)
 
-bt = BinaryImageTools(image)
-print "Removing salt and pepper..."
-bt.remove_salt_and_pepper_noise()
+    def preprocess_image(self, image):
+        print "WARNING: Border detection may take SEVERAL minutes depending on the image resolution"
+        image = grayscale_rgb_image(image)
+        filter = MedianFilter(image)
+        preprocessed_image = filter.apply_filter()
+        return preprocessed_image
 
-ver_mask = Mask(image, '../masks/sobel_vertical.txt')
-ver_mask.apply_mask()
-vertical_gradient = ver_mask.get_gradient_list()
+    def detect_borders(self):
+        gradient_magnitudes = self.calculate_gradient_magnitudes()
+        threshold = calculate_threshold(gradient_magnitudes)
+        return self.draw_image_borders(gradient_magnitudes, threshold)
 
-hor_mask = Mask(image, '../masks/sobel_horizontal.txt')
-hor_mask.apply_mask()
-horizontal_gradient = hor_mask.get_gradient_list()
+    def calculate_gradient_magnitudes(self):
+        gradient = self.calculate_gradient()
+        return np.array([pixel[1] for pixel in gradient])
 
-def calculate_global_gradient(horizontal_gradient, vertical_gradient):
-    pixels = [pixel[0] for pixel in horizontal_gradient]
-    return [[pixel, sqrt(x[1] ** 2 + y[1] ** 2)] for (pixel, x, y) in
-            zip(pixels, horizontal_gradient, vertical_gradient)]
+    def calculate_gradient(self):
+        print "Calculating gradient..."
+        horizontal_gradient = self.calculate_horizontal_gradient()
+        vertical_gradient = self.calculate_vertical_gradient()
+        return calculate_global_gradient(horizontal_gradient, vertical_gradient)
 
-print "Calculating gradient..."
-gradient = calculate_global_gradient(horizontal_gradient, vertical_gradient)
-magnitudes = np.array([pixel[1] for pixel in gradient])
-print "Calculating threshold..."
-threshold = calculate_threshold(magnitudes)
+    def calculate_horizontal_gradient(self):
+        horizoontal_mask = Mask(self.image, '../masks/sobel_horizontal.txt')
+        horizoontal_mask.apply_mask()
+        return horizoontal_mask.get_gradient_list()
 
-img = Image.new("L", image.size)
-new_pixels = img.load()
+    def calculate_vertical_gradient(self):
+        vertical_mask = Mask(self.image, '../masks/sobel_vertical.txt')
+        vertical_mask.apply_mask()
+        return vertical_mask.get_gradient_list()
 
-magnitude_index = 0
-for y in xrange(image.size[1]):
-    for x in xrange(image.size[0]):
-        if magnitudes[magnitude_index] < threshold:
-            new_pixels[x, y] = 0
-        else:
-            new_pixels[x, y] = 255
-        magnitude_index += 1
+    def draw_image_borders(self, magnitudes, threshold):
+        bordered_detected_image = Image.new("L", image.size)
+        bordered_pixels = bordered_detected_image.load()
+        magnitude_index = 0
+        for y in xrange(image.size[1]):
+            for x in xrange(image.size[0]):
+                if magnitudes[magnitude_index] < threshold:
+                    bordered_pixels[x, y] = MIN_PIXEL_INTENSITY
+                else:
+                    bordered_pixels[x, y] = MAX_PIXEL_INTENSITY
+                magnitude_index += 1
+        return bordered_detected_image
 
-img.save('borders.png')
+if __name__ == '__main__':
+    image = Image.open('../doge-medium.jpg')
+    bt = BorderDetector(image)
+    bordered_image = bt.detect_borders()
+    bordered_image.save('../doge-bordered.png')

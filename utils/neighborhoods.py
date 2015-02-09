@@ -22,6 +22,9 @@ class BaseNeighborhood:
         return self._is_top_border(x, y) or self._is_bottom_border(x, y) \
                or self._is_right_border(x, y) or self._is_left_border(x, y)
 
+    def _is_neither_corner_or_border(self, x, y):
+        return self._is_corner(x, y) is False and self._is_border(x, y) is False
+
     def _is_top_left(self, x, y):
         return x == 0 and y == 0
 
@@ -91,10 +94,10 @@ class BaseNeighborhood:
         return ((x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y))
 
     def _left_neighbors(self, x, y):
-        return ((x, y-1), (x+1, y-1), (x+1, y), (x, y+1), (x+1, y+1))
+        return ((x, y-1), (x-1, y-1), (x-1, y), (x-1, y+1), (x, y+1))
 
     def _right_neighbors(self, x, y):
-        return ((x-1, y-1), (x, y-1), (x-1, y), (x-1, y+1), (x, y+1))
+        return ((x, y-1), (x+1, y-1), (x+1, y), (x+1, y+1), (x, y+1))
 
     def _all_neighbors(self, x, y):
         return ((x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1))

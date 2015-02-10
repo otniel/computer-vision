@@ -1,28 +1,25 @@
-Escala de grises
-
-Range scaling, per chanel, pts extras, [slider, change to b&n]
-
-histogram,
-
-salt & pepper filter, do and undo
-
-sorted filters: min 1pt(quantil 0%), max 1pt(quantil 100%),
-                median pt(quantil de 50%), quantil (0 <= q <= 1), multiplle neighb, 1pt
-
-mask filters: average 1pr, gaussian 1pt, arbitrary 1pt
-
-transparency: color - alpha 1pt, threshold 1pt; alpha - color 1pt
-
-resize: arrange 1pt, arbritary 1pt, large to small 1pt,
-
-invert colors, per channel, switch chanels
-
-combine: any (avergare) 1pt, ponderado 1pt, difference 2 images 1pt. (combine with effect)
-
-float-fill exact 1pt, threshold 1pt, block 1pt,
-
-binary, half 1pt, threshold (1 or 2) 1pt, automátic threshold 1pt,
-
-random colors
-
-drawing: line(eq, 2 lines) 1pt, circle(eq, origin, radius), ellipse eq 1pt, rectangulo (eq), lineas a partir de puntos,
+Generación de colores (distinguibles) de forma pseudoaleatoria
+Dibujo de rectas, rectángulos, círculos y/o elipses desde sus ecuaciones o parámetros (rellenos, grosor arbitr.)
+Conversiones a escala de grises; conversiones a un palette limitado específico; binarización con un umbral 
+Filtados, alteraciones (p.ej. reemplazos o intercambios) y normalizaciones de canales y/o transparencia + matrices
+Cambios de resolución (mayor, menor, en proporción o arbitrario); rotaciones (de ángulo arbitrario)
+Combinación de dos o más frames; diferencia de dos o más frames [*]
+Aplicación de máscaras de ordenamiento (min, median [**], etc.) y de convolución discreta (gauss, avg, gradient)
+Cálculo de la magnitud y/o el ángulo del gradiente usando dos máscaras para ejes (ortogonales)
+Flood-fill / selección de zonas continuas de pixeles que cumplan un criterio específico
+Detección de esquinas usando la diferencia (*) del frame original y su filtro mediano (**)
+Detección de bordes: estudio comparativo de las máscaras de gradiente
+Detección de objetos como zonas continuas encerradas por bordes distintos; filtrado de objetos pequeños
+Combición de objetos suficientemente cercanos y/o similares para inferir que pertenezcan juntos
+Detección de fondo (por el histograma de colores usando un umbral y/o con detección de bordes)
+Cálculo de caja envolvente (bbox), envolvente convexa (convex hull [***]) y centro de masa de un grupo de pixeles
+Crop de un frame a frames individuales para cada objeto detectado (eliminando el fondo)
+Hacer bordes/objetos más gruesos y/o más delgados; cálculo de un esquéleto
+Etiquetado de objetos presentes en un frame (proporción, posición, tamaño)
+Reemplazo de la fondo de un frame por otro frame; eliminación de un objeto por "continuación" del fondo
+Cálculo de histogramas para canales, renglones y columnas
+Generación y eliminación de ruido sal-y-pimienta (puro o mezclado)
+Cálculo de la distancia mínima entre un pixel que pertenece a un borde y el convex hull de ese borde (***)
+Detección de máximos locales la distancia a lo largo del borde (llamados "defectos")
+Cálculo del número de dedos levantados en un frame de una mano con los defectos detectados
+ES NECESARIO MANDAR UN CORREO CON SU NOMBRE, MATRÍCULA Y GIT QUE IDENTIFICA LA MATERIA QUE ESTÁN CURSANDO CONMIGO 

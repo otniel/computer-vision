@@ -13,11 +13,11 @@ class BinaryImageTools:
         self.image = image
         self.pixels = image.load()
         if neighborhood == '1':
-            self.neighborhood = CrossPixelNeighborhood(self.pixels, self.image.size)
+            self.neighborhood = CrossPixelNeighborhood(self.image)
         elif neighborhood == '2':
-            self.neighborhood = PlusPixelNeighborhood(self.pixels, self.image.size)
+            self.neighborhood = PlusPixelNeighborhood(self.image)
         else:
-            self.neighborhood = BasePixelNeighborhood(self.pixels, self.image.size)
+            self.neighborhood = BasePixelNeighborhood(self.image)
 
     def erode_image(self):
         eroded_image = Image.new(self.image.mode, self.image.size)

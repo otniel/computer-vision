@@ -3,6 +3,7 @@ import Image
 import numpy as np
 
 from masks.mask import Mask
+from utils.neighborhoods import BaseNeighborhood
 from utils.tools import MAX_PIXEL_INTENSITY, MIN_PIXEL_INTENSITY
 from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
@@ -11,6 +12,8 @@ from math import sqrt
 class BorderDetector:
     def __init__(self, image):
         self.image = self.preprocess_image(image)
+        self.neighborhood = BaseNeighborhood(image.size)
+        self.border_pixels = []
 
     def preprocess_image(self, image):
         print "WARNING: Border detection may take SEVERAL minutes depending on the image resolution"
@@ -22,7 +25,12 @@ class BorderDetector:
     def detect_borders(self):
         gradient_magnitudes = self.calculate_gradient_magnitudes()
         threshold = calculate_threshold(gradient_magnitudes)
-        return self.draw_image_borders(gradient_magnitudes, threshold)
+        magnitude_index = 0
+        for y in xrange(self.image.size[1]):
+            for x in xrange(self.image.size[0]):
+                if gradient_magnitudes[magnitude_index] > threshold:
+                    self.border_pixels.append((x, y))
+                magnitude_index += 1
 
     def calculate_gradient_magnitudes(self):
         gradient = self.calculate_gradient()
@@ -44,21 +52,16 @@ class BorderDetector:
         vertical_mask.apply_mask()
         return vertical_mask.get_gradient_list()
 
-    def draw_image_borders(self, magnitudes, threshold):
+    def draw_image_borders(self):
         bordered_detected_image = Image.new("L", self.image.size)
         bordered_pixels = bordered_detected_image.load()
-        magnitude_index = 0
-        for y in xrange(self.image.size[1]):
-            for x in xrange(self.image.size[0]):
-                if magnitudes[magnitude_index] < threshold:
-                    bordered_pixels[x, y] = MIN_PIXEL_INTENSITY
-                else:
-                    bordered_pixels[x, y] = MAX_PIXEL_INTENSITY
-                magnitude_index += 1
+        for pixel in self.border_pixels:
+            bordered_pixels[pixel] = MAX_PIXEL_INTENSITY
         return bordered_detected_image
 
 if __name__ == '__main__':
     image = Image.open('../test-images/circulo.png')
     bt = BorderDetector(image)
-    bordered_image = bt.detect_borders()
+    bt.detect_borders()
+    bordered_image = bt.draw_image_borders()
     bordered_image.save('../test-images/circulo-bordered.png')

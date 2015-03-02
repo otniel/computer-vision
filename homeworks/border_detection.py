@@ -4,19 +4,20 @@ import numpy as np
 
 from masks.mask import Mask
 from utils.neighborhoods import BaseNeighborhood
+from utils.gradients import Gradients
 from utils.tools import MAX_PIXEL_INTENSITY, MIN_PIXEL_INTENSITY
 from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
-from math import sqrt
+from math import sqrt, atan2
 
 class BorderDetector:
     def __init__(self, image):
         self.image = self.preprocess_image(image)
         self.neighborhood = BaseNeighborhood(image.size)
         self.border_pixels = []
+        self.angles = []
 
     def preprocess_image(self, image):
-        print "WARNING: Border detection may take SEVERAL minutes depending on the image resolution"
         image = grayscale_rgb_image(image)
         filter = MedianFilter(image)
         preprocessed_image = filter.apply_filter()
@@ -34,12 +35,12 @@ class BorderDetector:
 
     def calculate_gradient_magnitudes(self):
         gradient = self.calculate_gradient()
-        return np.array([pixel[1] for pixel in gradient])
+        return np.array([pixel for pixel in gradient])
 
     def calculate_gradient(self):
-        print "Calculating gradient..."
         horizontal_gradient = self.calculate_horizontal_gradient()
         vertical_gradient = self.calculate_vertical_gradient()
+        self.calculate_angles(horizontal_gradient, vertical_gradient)
         return calculate_global_gradient(horizontal_gradient, vertical_gradient)
 
     def calculate_horizontal_gradient(self):
@@ -52,6 +53,10 @@ class BorderDetector:
         vertical_mask.apply_mask()
         return vertical_mask.get_gradient_list()
 
+    def calculate_angles(self, horizontal_gradient, vertical_gradient):
+        self.angles = [atan2(y, x) for (x, y) in
+                       zip(horizontal_gradient, vertical_gradient)]
+
     def draw_image_borders(self):
         bordered_detected_image = Image.new("L", self.image.size)
         bordered_pixels = bordered_detected_image.load()
@@ -59,9 +64,14 @@ class BorderDetector:
             bordered_pixels[pixel] = MAX_PIXEL_INTENSITY
         return bordered_detected_image
 
+
+
+
 if __name__ == '__main__':
-    image = Image.open('../test-images/circulo.png')
+    image = Image.open('../test-images/squares.png')
+    image = image.convert('RGB')
     bt = BorderDetector(image)
     bt.detect_borders()
     bordered_image = bt.draw_image_borders()
-    bordered_image.save('../test-images/circulo-bordered.png')
+    bordered_image.show()
+    # bordered_image.save('../test-images/circulo-bordered.png')

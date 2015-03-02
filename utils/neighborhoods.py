@@ -150,10 +150,10 @@ class PlusNeighborhood(BaseNeighborhood):
         return ((x, y-1),)
 
     def _left_neighbors(self, x, y):
-        return ((x+1, y),)
+        return ((x-1, y),)
 
     def _right_neighbors(self, x, y):
-        return ((x-1, y),)
+        return ((x+1, y),)
 
     def _all_neighbors(self, x, y):
         return ((x, y-1), (x-1, y), (x+1, y), (x, y+1))

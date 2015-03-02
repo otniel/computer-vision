@@ -15,7 +15,8 @@ class Mask:
         self.mask_width, self.mask_height = self.mask.shape
         self.image_width, self.image_height = self.image.size
         self.neighborhood = BaseNeighborhood(image.size)
-
+        self.gradient_pixels = []
+        self.gradient_list = []
     def _read_mask_from_file_name(self, mask_filename):
         with open(mask_filename, 'r') as mask_file:
             return self.get_matrix_from_file(mask_file)
@@ -40,13 +41,13 @@ class Mask:
         return self.mask.ndim != 1
 
     def apply_mask(self):
-        self.gradient_list = []
         for y in xrange(self.image_height):
             for x in xrange(self.image_width):
+                self.gradient_pixels.append(self.pixels[x, y])
                 if self.neighborhood._is_neither_corner_or_border(x, y): # Ignore borders and corners
-                    self.gradient_list.append([self.pixels[x, y], self.convolve_pixel(x, y)])
+                    self.gradient_list.append(self.convolve_pixel(x, y))
                 else:
-                    self.gradient_list.append([0, 0])
+                    self.gradient_list.append(0)
 
     def convolve_pixel(self, x, y):
         neighbors = self.get_image_pixels(x, y)

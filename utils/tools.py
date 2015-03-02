@@ -91,9 +91,9 @@ def calculate_global_gradient(horizontal_gradient, vertical_gradient):
     """
 
     # Pixels from arbitrary gradient, they are the same
-    pixels = [pixel[0] for pixel in horizontal_gradient]
-    return [[pixel, sqrt(x[1] ** 2 + y[1] ** 2)] for (pixel, x, y) in
-            zip(pixels, horizontal_gradient, vertical_gradient)]
+    pixels = [pixel for pixel in horizontal_gradient]
+    return [sqrt(x ** 2 + y ** 2) for (x, y) in
+            zip(horizontal_gradient, vertical_gradient)]
 
 def _binarize_pixel(pixel, threshold=HALF_PIXEL_INTENSITY):
     if pixel >= threshold:

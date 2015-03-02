@@ -8,7 +8,7 @@ from utils.gradients import Gradients
 from utils.tools import MAX_PIXEL_INTENSITY, MIN_PIXEL_INTENSITY
 from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
-from math import sqrt, atan2
+from math import sqrt, atan2, pi, cos, sin, ceil
 
 class BorderDetector:
     def __init__(self, image):
@@ -16,7 +16,8 @@ class BorderDetector:
         self.neighborhood = BaseNeighborhood(image.size)
         self.border_pixels = []
         self.angles = []
-
+        self.coordinates_rhos_and_theta = []
+        self.rho_and_angle = []
     def preprocess_image(self, image):
         image = grayscale_rgb_image(image)
         filter = MedianFilter(image)
@@ -31,6 +32,11 @@ class BorderDetector:
             for x in xrange(self.image.size[0]):
                 if gradient_magnitudes[magnitude_index] > threshold:
                     self.border_pixels.append((x, y))
+                    angle = atan2(y, x)
+                    self.angles.append(np.rad2deg(angle))
+                    rho = x * cos(angle) + y * sin(angle)
+                    self.rho_and_angle.append((ceil(rho), ceil(angle)))
+                    self.coordinates_rhos_and_theta.append([(x, y), (ceil(rho), ceil(angle))])
                 magnitude_index += 1
 
     def calculate_gradient_magnitudes(self):
@@ -40,7 +46,6 @@ class BorderDetector:
     def calculate_gradient(self):
         horizontal_gradient = self.calculate_horizontal_gradient()
         vertical_gradient = self.calculate_vertical_gradient()
-        self.calculate_angles(horizontal_gradient, vertical_gradient)
         return calculate_global_gradient(horizontal_gradient, vertical_gradient)
 
     def calculate_horizontal_gradient(self):
@@ -53,19 +58,12 @@ class BorderDetector:
         vertical_mask.apply_mask()
         return vertical_mask.get_gradient_list()
 
-    def calculate_angles(self, horizontal_gradient, vertical_gradient):
-        self.angles = [atan2(y, x) for (x, y) in
-                       zip(horizontal_gradient, vertical_gradient)]
-
     def draw_image_borders(self):
         bordered_detected_image = Image.new("L", self.image.size)
         bordered_pixels = bordered_detected_image.load()
         for pixel in self.border_pixels:
             bordered_pixels[pixel] = MAX_PIXEL_INTENSITY
         return bordered_detected_image
-
-
-
 
 if __name__ == '__main__':
     image = Image.open('../test-images/squares.png')

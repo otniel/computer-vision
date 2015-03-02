@@ -3,10 +3,10 @@ __author__ = 'otniel'
 import Image
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
 from utils.pixelneighborhoods import BasePixelNeighborhood
 from math import sqrt
-
 MAX_PIXEL_INTENSITY = 255
 HALF_PIXEL_INTENSITY = 127
 MIN_PIXEL_INTENSITY = 0

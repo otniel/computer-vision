@@ -4,11 +4,12 @@ import numpy as np
 
 from masks.mask import Mask
 from utils.neighborhoods import BaseNeighborhood
-from utils.gradients import Gradients
-from utils.tools import MAX_PIXEL_INTENSITY, MIN_PIXEL_INTENSITY
+from utils.tools import MAX_PIXEL_INTENSITY
 from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
 from math import sqrt, atan2, pi, cos, sin, ceil
+
+
 
 class BorderDetector:
     def __init__(self, image):

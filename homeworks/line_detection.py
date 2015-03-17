@@ -1,5 +1,4 @@
 from homeworks.border_detection import BorderDetector
-from utils.tools import plot_data, calculate_threshold
 from PIL import Image
 from collections import Counter
 
@@ -15,12 +14,12 @@ class LineDetector:
         self.line_pixels = []
 
     def detect_lines(self):
-        best_votes = self.get_voting()
+        best_votes = self.get_best_votes()
         for candidate in self.border_detector.coordinates_rhos_and_theta:
             if candidate[1] in best_votes:
                 self.line_pixels.append(candidate[0])
 
-    def get_voting(self):
+    def get_best_votes(self):
         counter = Counter(self.border_detector.rho_and_angle)
         commons = counter.most_common(100)
         best_votes = np.array([common[0] for common in commons])
@@ -35,12 +34,13 @@ class LineDetector:
             lined_pixels[pixel] = (255, 0, 0)
         return lined_image
 
+
 image = Image.open('../test-images/multiple_lines.png')
 image = image.convert('RGB')
 ld = LineDetector(image)
 ld.detect_lines()
 lined_image = ld.draw_lined_image()
 lined_image.save('../test-images/multiple_lined.png')
-#angles_ranking = Counter(ld.angles)
+# angles_ranking = Counter(ld.angles)
 #print angles_ranking.most_common()
 #ld.plot()

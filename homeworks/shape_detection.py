@@ -8,6 +8,7 @@ from homeworks.border_detection import BorderDetector
 from time import sleep
 VISITED_NEIGHBOR_COLOR = 127
 
+
 class ShapeDetector:
     def __init__(self, image):
         border_detector = BorderDetector(image)
@@ -42,10 +43,10 @@ class ShapeDetector:
 
     # DFS
     def find_shape(self, pixel_coordinate):
-        pixel_stack = []
-        pixel_stack.append(pixel_coordinate)
+        pixel_stack = [pixel_coordinate]
         mass = []
         color = generate_random_color()
+        print "Finding New Shape..."
         while pixel_stack:
             x, y = pixel_stack.pop()
             neighbors = self.neighborhood.get_neighbor_coordinates(x, y)
@@ -54,6 +55,7 @@ class ShapeDetector:
                     self.visit_pixel(neighbor, color)
                     pixel_stack.append(neighbor)
                     mass.append(neighbor)
+            print "He is looking, yet..."
         shape = Shape(mass)
         return shape
 
@@ -78,6 +80,7 @@ class ShapeDetector:
     def draw_image_shapes(self):
         return self.new_image
 
+
 class Shape:
     def __init__(self, mass=[]):
         self.mass = mass
@@ -95,7 +98,7 @@ class Shape:
         x_max = max(self.x_components)
         y_min = min(self.y_components)
         y_max = max(self.y_components)
-        return (x_min, y_min, x_max, y_max)
+        return x_min, y_min, x_max, y_max
 
 image = Image.open('../test-images/shapes.png')
 image = image.convert('RGB')

@@ -7,8 +7,10 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 from utils.neighborhoods import BaseNeighborhood, CrossNeighborhood, PlusNeighborhood
 
+
 class BaseFilter:
     __metaclass__ = ABCMeta
+
     def __init__(self, image, neighborhood=0):
         self.image = image
         self.image_width = image.size[0]
@@ -28,32 +30,36 @@ class BaseFilter:
         filtered_pixels = filtered_image.load()
         for x in xrange(self.image_width):
             for y in xrange(self.image_height):
-                filtered_pixels[x, y] = self.calculate_filtered_pixel(x, y)
+                pixel = self.calculate_filtered_pixel(x, y)
+                filtered_pixels[x, y] = (pixel, pixel, pixel)
         return filtered_image
 
     @abstractmethod
     def calculate_filtered_pixel(self, x, y):
         pass
 
+
 class MinFilter(BaseFilter):
     def calculate_filtered_pixel(self, x, y):
         neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
         pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
-        return np.min(pixels)
+        return int(np.min(pixels))
+
 
 class MaxFilter(BaseFilter):
     def calculate_filtered_pixel(self, x, y):
         neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
         pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
-        return np.max(pixels)
+        return int(np.max(pixels))
+
 
 class MedianFilter(BaseFilter):
     def calculate_filtered_pixel(self, x, y):
         neighbor_coordinates = self.neighborhood.get_neighbor_coordinates(x, y)
         pixels = [self.pixels[coordinate] for coordinate in neighbor_coordinates]
-        return np.median(pixels)
+        return int(np.median(pixels))
 
-#image = Image.open('grayscale_mason.png')
+# image = Image.open('grayscale_mason.png')
 #filter = MaxFilter(image)
-#image = filter.apply_filter()
-#image.save('max_mason.png')
+# #image = filter.apply_filter()
+# #image.save('max_mason.png')

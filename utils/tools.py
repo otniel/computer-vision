@@ -30,19 +30,20 @@ def _invert_rgb_pixel(pixel):
 def grayscale_rgb_image(image):
     print "Grayscaling image..."
     pixels = image.load()
-    grayscale_image = Image.new("L", image.size)
+    grayscale_image = Image.new("RGB", image.size)
     grayscale_pixels = grayscale_image.load()
     for y in xrange(image.size[1]):  # height
         for x in xrange(image.size[0]):  # width
-            grayscale_pixels[x, y] = _get_grayscale_pixel(pixels[x, y])
+            gpx = _get_grayscale_pixel(pixels[x, y])
+            grayscale_pixels[x, y] = (gpx, gpx, gpx)
     return grayscale_image
 
 
 def _get_grayscale_pixel(rgb_pixel):
     red, green, blue = rgb_pixel
     # Weighted sum
-    return sum([x * y for (x, y) in zip([red, green, blue],
-                                        [0.2126, 0.7152, 0.0722])])  # Intensity coefficients [http://u.to/qEtWCg]
+    return int(sum([x * y for (x, y) in zip([red, green, blue],
+                                            [0.2126, 0.7152, 0.0722])]))  # Intensity coefficients [http://u.to/qEtWCg]
 
 
 def binarize_rgb_image(image):
@@ -56,8 +57,15 @@ def binarize_image(image):
     threshold = calculate_image_threshold(image)
     for y in xrange(image.size[1]):  # height
         for x in xrange(image.size[0]):  # width
-            binary_pixels[x, y] = _binarize_pixel(binary_pixels[x, y], threshold)
+            bp = _binarize_pixel(binary_pixels[x, y][0], threshold)
+            binary_pixels[x, y] = (bp, bp, bp)
     return binary_image
+
+
+def _binarize_pixel(pixel, threshold=HALF_PIXEL_INTENSITY):
+    if pixel >= threshold:
+        return MAX_PIXEL_INTENSITY
+    return MIN_PIXEL_INTENSITY
 
 
 def calculate_threshold(data):  # Reference: http://goo.gl/7nP48T page 12
@@ -76,6 +84,7 @@ def calculate_threshold(data):  # Reference: http://goo.gl/7nP48T page 12
 
 def calculate_image_threshold(image):
     data = get_pixels_list(image)
+    data = np.array([pixels[0] for pixels in data])
     return calculate_threshold(data)
 
 
@@ -101,16 +110,8 @@ def calculate_global_gradient(horizontal_gradient, vertical_gradient):
     :param vertical_gradient:
     :return 2-dimensional list with pixels - gradient:
     """
-
-    # Pixels from arbitrary gradient, they are the same
     return [sqrt(x ** 2 + y ** 2) for (x, y) in
             zip(horizontal_gradient, vertical_gradient)]
-
-
-def _binarize_pixel(pixel, threshold=HALF_PIXEL_INTENSITY):
-    if pixel >= threshold:
-        return MAX_PIXEL_INTENSITY
-    return MIN_PIXEL_INTENSITY
 
 
 def get_pixels_list(image):
@@ -143,15 +144,15 @@ def is_border_pixel(pixel):
 
 
 if __name__ == '__main__':
-    rgb_image = Image.open('../mason.jpg')
-    print "Inverting image..."
-    inverted_image = invert_rgb_image(rgb_image)
-    inverted_image.save('images/inverted_mason.png')
+    rgb_image = Image.open('../test-images/mason.jpg')
+    # print "Inverting image..."
+    #inverted_image = invert_rgb_image(rgb_image)
+    #inverted_image.save('../test-images/inverted_mason.png')
 
-    print "Grayscaling image..."
-    gray_image = grayscale_rgb_image(rgb_image)
-    gray_image.save('images/grayscale_mason.png')
+    #print "Grayscaling image..."
+    #gray_image = grayscale_rgb_image(rgb_image)
+    #gray_image.save('../test-images/grayscale_mason.png')
 
     print "Binarizing image..."
     binary_image = binarize_rgb_image(rgb_image)
-    binary_image.save('images/automatic_binary_mason.png')
+    binary_image.save('../test-images/automatic_binary_mason.png')

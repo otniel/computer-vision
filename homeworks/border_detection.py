@@ -1,29 +1,29 @@
-import matplotlib.pyplot as plt
 import Image
 import numpy as np
 
 from masks.mask import Mask
-from utils.neighborhoods import BaseNeighborhood
+from utils.neighborhoods import CrossNeighborhood
 from utils.tools import MAX_PIXEL_INTENSITY
-from utils.tools import grayscale_rgb_image, calculate_threshold, calculate_global_gradient
+from utils.tools import binarize_rgb_image, calculate_threshold, calculate_global_gradient
 from filters.filter import MedianFilter
 from math import sqrt, atan2, pi, cos, sin, ceil
 
 
+def preprocess_image(image):
+    image = binarize_rgb_image(image)
+    filter = MedianFilter(image)
+    preprocessed_image = filter.apply_filter()
+    return preprocessed_image
+
 
 class BorderDetector:
     def __init__(self, image):
-        self.image = self.preprocess_image(image)
-        self.neighborhood = BaseNeighborhood(image.size)
+        self.image = preprocess_image(image)
+        self.neighborhood = CrossNeighborhood(image.size)
         self.border_pixels = []
         self.angles = []
         self.coordinates_rhos_and_theta = []
         self.rho_and_angle = []
-    def preprocess_image(self, image):
-        image = grayscale_rgb_image(image)
-        filter = MedianFilter(image)
-        preprocessed_image = filter.apply_filter()
-        return preprocessed_image
 
     def detect_borders(self):
         gradient_magnitudes = self.calculate_gradient_magnitudes()
@@ -60,17 +60,22 @@ class BorderDetector:
         return vertical_mask.get_gradient_list()
 
     def draw_image_borders(self):
-        bordered_detected_image = Image.new("L", self.image.size)
+        bordered_detected_image = Image.new("RGB", self.image.size)
         bordered_pixels = bordered_detected_image.load()
         for pixel in self.border_pixels:
-            bordered_pixels[pixel] = MAX_PIXEL_INTENSITY
+            px = MAX_PIXEL_INTENSITY
+            bordered_pixels[pixel] = (px, px, px)
+            #Engordando
+            #neighbors = self.neighborhood.get_neighbor_coordinates(pixel[0], pixel[1])
+            #for neighbor in neighbors:
+            #    bordered_pixels[neighbor] = (px, px, px)
         return bordered_detected_image
 
+
 if __name__ == '__main__':
-    image = Image.open('../test-images/squares.png')
+    image = Image.open('../test-images/ellipses.png')
     image = image.convert('RGB')
     bt = BorderDetector(image)
     bt.detect_borders()
     bordered_image = bt.draw_image_borders()
-    bordered_image.show()
-    # bordered_image.save('../test-images/circulo-bordered.png')
+    bordered_image.save('../test-images/ellipse-bordered.png')

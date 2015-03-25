@@ -143,6 +143,17 @@ def is_border_pixel(pixel):
     return pixel == MAX_PIXEL_INTENSITY
 
 
+def image_to_cartesian_coordinates(x, y, width, height):
+    cartesian_x_axis = x - (width / 2.0)
+    cartesian_y_axis = (height / 2.0) - y
+    return cartesian_x_axis, cartesian_y_axis
+
+
+def cartesian_to_image_coordinates(x, y, width, height):
+    cartesian_x_axis = x + (width / 2.0)
+    cartesian_y_axis = (height / 2.0) - y
+    return cartesian_x_axis, cartesian_y_axis
+
 if __name__ == '__main__':
     rgb_image = Image.open('../test-images/mason.jpg')
     # print "Inverting image..."

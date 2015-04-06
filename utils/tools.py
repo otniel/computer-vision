@@ -16,7 +16,7 @@ def invert_rgb_image(image):
     pixels = image.load()
     inverted_image = Image.new(image.mode, image.size)
     inverted_pixels = inverted_image.load()
-    for y in xrange(image.size[1]):  # height
+    for y in xrange(image.size[1]):  # kight
         for x in xrange(image.size[0]):  # width
             inverted_pixels[x, y] = _invert_rgb_pixel(pixels[x, y])
     return inverted_image
@@ -144,8 +144,8 @@ def is_border_pixel(pixel):
 
 
 def image_to_cartesian_coordinates(x, y, width, height):
-    cartesian_x_axis = x - (width / 2.0)
-    cartesian_y_axis = (height / 2.0) - y
+    cartesian_x_axis = int(x - (width / 2.0))
+    cartesian_y_axis = int((height / 2.0) - y)
     return cartesian_x_axis, cartesian_y_axis
 
 
@@ -154,16 +154,30 @@ def cartesian_to_image_coordinates(x, y, width, height):
     cartesian_y_axis = (height / 2.0) - y
     return cartesian_x_axis, cartesian_y_axis
 
+
+def convert_rgb_to_hex(rgb):
+    if any(channel > 255 or channel < 0 for channel in rgb):
+        return "All color channels must be in [0 - 255]"
+
+    r, g, b = rgb
+    r = hex(r).split('x')[1].zfill(2)
+    g = hex(g).split('x')[1].zfill(2)
+    b = hex(b).split('x')[1].zfill(2)
+    return '#' + r + g + b
+
+
 if __name__ == '__main__':
     rgb_image = Image.open('../test-images/mason.jpg')
     # print "Inverting image..."
-    #inverted_image = invert_rgb_image(rgb_image)
-    #inverted_image.save('../test-images/inverted_mason.png')
+    # inverted_image = invert_rgb_image(rgb_image)
+    # inverted_image.save('../test-images/inverted_mason.png')
 
-    #print "Grayscaling image..."
-    #gray_image = grayscale_rgb_image(rgb_image)
-    #gray_image.save('../test-images/grayscale_mason.png')
+    # print "Grayscaling image..."
+    # gray_image = grayscale_rgb_image(rgb_image)
+    # gray_image.save('../test-images/grayscale_mason.png')
 
-    print "Binarizing image..."
-    binary_image = binarize_rgb_image(rgb_image)
-    binary_image.save('../test-images/automatic_binary_mason.png')
+    # print "Binarizing image..."
+    # binary_image = binarize_rgb_image(rgb_image)
+    # binary_image.save('../test-images/automatic_binary_mason.png')
+
+    print convert_rgb_to_hex((12, 2, 1112))

@@ -5,7 +5,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-from math import sqrt
+from math import sqrt, floor
 
 MAX_PIXEL_INTENSITY = 255
 HALF_PIXEL_INTENSITY = 127
@@ -116,7 +116,7 @@ def calculate_global_gradient(horizontal_gradient, vertical_gradient):
 
 def get_pixels_list(image):
     pixels = image.load()
-    return np.array([pixels[x, y] for y in xrange(image.size[1]) for x in xrange(image.size[0])])
+    return np.array([pixels[x, y][0] for y in xrange(image.size[1]) for x in xrange(image.size[0])])
 
 
 def generate_random_color():
@@ -166,6 +166,48 @@ def convert_rgb_to_hex(rgb):
     return '#' + r + g + b
 
 
+def normalize_grayscale_image(image):
+    frecuencies = dict()
+    pixels = image.load()
+    width, height = image.size
+
+    for y in xrange(height):
+        for x in xrange(width):
+            color = pixels[x, y][0]
+            if color in frecuencies:
+                frecuencies[color] += 1
+            else:
+                frecuencies[color] = 1
+
+    threshold = 10
+    max, min = -1, 999999
+    for color in frecuencies:
+        if frecuencies[color] > threshold:
+            if color < min:
+                min = color
+            if color > max:
+                max = color
+    range = float(max - min)
+    new_image = Image.new('RGB', image.size)
+    new_pixels = new_image.load()
+    for y in xrange(height):
+        for x in xrange(width):
+            color = pixels[x, y][0]
+            if color <= min:
+                new_pixels[x, y] = (0, 0, 0)
+            elif color >= max:
+                new_pixels[x, y] = (255, 255, 255)
+            else:
+                i = int(255 * (color - min) / range)
+                new_pixels[x, y] = (i, i, i)
+    return new_image
+
+
+def normalize_rgb_image(image):
+    gray_image = grayscale_rgb_image(image)
+    return normalize_grayscale_image(gray_image)
+
+
 if __name__ == '__main__':
     rgb_image = Image.open('../test-images/mason.jpg')
     # print "Inverting image..."
@@ -173,11 +215,13 @@ if __name__ == '__main__':
     # inverted_image.save('../test-images/inverted_mason.png')
 
     # print "Grayscaling image..."
-    # gray_image = grayscale_rgb_image(rgb_image)
-    # gray_image.save('../test-images/grayscale_mason.png')
+    gray_image = grayscale_rgb_image(rgb_image)
+    gray_image.save('../test-images/grayscale_mason.png')
 
     # print "Binarizing image..."
     # binary_image = binarize_rgb_image(rgb_image)
     # binary_image.save('../test-images/automatic_binary_mason.png')
 
-    print convert_rgb_to_hex((12, 2, 1112))
+    # print convert_rgb_to_hex((12, 2, 1112))
+    norm_im = normalize_grayscale_image(gray_image)
+    norm_im.save('../test-images/new_normalized.png')

@@ -14,6 +14,7 @@ class MiniPaint(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.initUI()
+        self.drawing_line = False
 
     def initUI(self):
         self.setup_window()
@@ -54,8 +55,12 @@ class MiniPaint(Frame):
         self.canvas.create_rectangle((event.x - 2, event.y - 2, event.x + 2, event.y + 2), fill='#000000')
 
     def setup_buttons(self):
-        point_button = Button(self, text="Point")
+        point_button = Button(self, text="Point", command=self.)
         point_button.grid(row=1, column=3)
+
+        line_button = Button(self, text="Line", command=self.draw_line)
+        line_button.grid(row=2, column=3)
+
         clear_button = Button(self, text="Clear", command=self.clear_canvas)
         clear_button.grid(row=5, column=0, padx=5)
 

@@ -1,0 +1,14 @@
+1: Look to left
+2: Look to up
+3: Look to right
+4: Look to down
+5: Look straight
+
+6: Move your head to left
+7: Move your head to right
+8: Move your head up
+9: Move your head down
+
+10: Smile
+11: Get angry
+12: Neutral face
